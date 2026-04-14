@@ -30,7 +30,7 @@
 #include "cores_communication.h"
 #include <stdatomic.h>
 #include <limits.h>
-
+#include <string.h>
 
 #if BUFFSHAREDSIZE > INT_MAX
 #error BUFFSHAREDSIZE must be less than INT_MAX
@@ -90,6 +90,25 @@ int put_to_m4(const int *const restrict buffer, unsigned int size)
     return (int)size;
 }
 
+int put_any_to_m4(const void *const restrict buffer, unsigned int count, unsigned int el_size){
+
+	if(atomic_flag_test_and_set(&shared_data.lock1)){
+		return -1;
+	}
+	unsigned int put_size = count * el_size;
+
+	if(put_size > BUFFSHAREDSIZE){
+		count = BUFFSHAREDSIZE / el_size;
+		put_size = count * el_size;
+	}
+
+	shared_data.buffer1_size = put_size;
+	memcpy(shared_data.buffer1, buffer, put_size);
+	atomic_flag_clear(&shared_data.lock1);
+
+	return (int)count;
+
+}
 
 /**
  * @brief Get data from M4
@@ -178,6 +197,26 @@ int put_to_m7(const int *const restrict buffer, unsigned int size)
     return (int)size;
 }
 
+//THIS IS NOT COMPLETED YET
+int put_any_to_m7(const void *const restrict buffer, unsigned int count, unsigned int el_size){   
+    if (atomic_flag_test_and_set(&shared_data.lock2)) {
+
+        return -1;
+    }
+    unsigned int put_size = count * el_size;
+
+    if (put_size > BUFFSHAREDSIZE){
+        count = BUFFSHAREDSIZE / el_size;
+        put_size = count * el_size;
+  }
+    shared_data.buffer2_size = put_size;
+
+    memcpy(shared_data.buffer2, buffer, put_size);
+    atomic_flag_clear(&shared_data.lock2);
+
+    return (int)count;
+}
+
 
 /**
  * @brief Get data from M7
@@ -213,6 +252,21 @@ int get_from_m7(int *const restrict buffer, unsigned int size)
     return (int)size;
 }
 
+int get_any_from_m7(void *const restrict buffer, unsigned int size){ //similar to the original
+	if (atomic_flag_test_and_set(&shared_data.lock1)) {               // but memcpy works better imo
+
+		return -1;
+	}
+    if (size > shared_data.buffer1_size) {
+        size = shared_data.buffer1_size;
+    }
+    memcpy(buffer, shared_data.buffer1, size);
+
+    shared_data.buffer1_size = 0;
+    atomic_flag_clear(&shared_data.lock1);
+
+    return (int)size;
+ }
 
 /**
  * @brief Verify whether CM7 has data ready for CM4 to read
