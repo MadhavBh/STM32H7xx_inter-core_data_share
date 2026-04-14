@@ -1,5 +1,13 @@
 # STM32H7xx_inter-core_data_share
 
+## Disclaimer
+This is a fork off of the original repo to share data between the two cores of the STM32H7 family. The original repo was strictly for tranceiving `int` data, which did not fit my use case of sharing arrays of `double` or `float`. 
+
+This fork aims to add functions to tranceive arrays of any data type. 
+
+
+Thanks to Adailton Braga for providing the groundwork. :) 
+
 ## Description
 
 This is a library used to share data back and forth between the two cores of the STM32H7xx.
