@@ -6,7 +6,9 @@ This is a fork off of the original repo to share data between the two cores of t
 This fork aims to add functions to tranceive arrays of any data type. 
 
 
-Thanks to Adailton Braga for providing the groundwork. :) 
+Thanks to Adailton Braga for providing the groundwork. :)
+
+
 
 ## Description
 
@@ -52,15 +54,4 @@ SECTIONS
 1. All the functions, except for `core_share_init()`, use the return value pattern, i.e., they return -1 when unable to take the lock, and 0 or a positive number for the number of items read, written, or checked.
 2. You can use a spinlock for example `while (get_from_m4(...) < 0) { ... }` or `while (put_to_m4(...) < 0) { ... }`
 
-### Videos with explanations
 
-Checkout the YouTube videos where this library is designed
-
-[![youtube_video](https://img.youtube.com/vi/SJ_QxraXdHA/0.jpg)](https://www.youtube.com/watch?v=SJ_QxraXdHA  "youtube_video")
-[![youtube_video](https://img.youtube.com/vi/Dw1mimKvxZo/0.jpg)](https://www.youtube.com/watch?v=Dw1mimKvxZo "youtube_video")
-
-
-## Contact
-
-This project was created by Adailton Braga.
-If you have any questions, get in touch by e-mail: adailtonjn68@gmail.com
