@@ -62,7 +62,12 @@ int put_to_m4(const int *const restrict buffer, unsigned int size);
 
 int put_any_to_m4(const void *const restrict buffer, unsigned int count, unsigned int el_size);
 
+
 int put_any_to_m7(const void *const restrict buffer, unsigned int count, unsigned int el_size);
+
+
+int get_any_from_m4(void *const restrict buffer, unsigned int size);
+
 
 int get_any_from_m7(void *const restrict buffer, unsigned int size);
 

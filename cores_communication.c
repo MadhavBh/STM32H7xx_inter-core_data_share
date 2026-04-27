@@ -27,6 +27,7 @@
  * SOFTWARE.
  */
 
+
 #include "cores_communication.h"
 #include <stdatomic.h>
 #include <limits.h>
@@ -108,6 +109,22 @@ int put_any_to_m4(const void *const restrict buffer, unsigned int count, unsigne
 
 	return (int)count;
 
+}
+
+int get_any_from_m4(void *const restrict buffer, unsigned int size){
+  if(atomic_flag_test_and_set(&shared_data.lock2)){
+    return -1;
+  }
+  if(size > shared_data.buffer2_size){
+    size = shared_data.buffer2_size;
+  }
+
+  memcpy(buffer, shared_data.buffer2, size);
+
+  shared_data.buffer2_size = 0; 
+  atomic_flag_clear(&shared_data.lock2);
+
+  return (int)size;
 }
 
 /**
@@ -199,8 +216,8 @@ int put_to_m7(const int *const restrict buffer, unsigned int size)
 
 //THIS IS NOT COMPLETED YET
 int put_any_to_m7(const void *const restrict buffer, unsigned int count, unsigned int el_size){   
-    if (atomic_flag_test_and_set(&shared_data.lock2)) {
 
+    if (atomic_flag_test_and_set(&shared_data.lock2)) {
         return -1;
     }
     unsigned int put_size = count * el_size;
@@ -217,6 +234,21 @@ int put_any_to_m7(const void *const restrict buffer, unsigned int count, unsigne
     return (int)count;
 }
 
+int get_any_from_m7(void *const restrict buffer, unsigned int size){ //similar to the original
+	if (atomic_flag_test_and_set(&shared_data.lock1)) {               // but memcpy works better imo
+
+		return -1;
+	}
+    if (size > shared_data.buffer1_size) {
+        size = shared_data.buffer1_size;
+    }
+    memcpy(buffer, shared_data.buffer1, size);
+
+    shared_data.buffer1_size = 0;
+    atomic_flag_clear(&shared_data.lock1);
+
+    return (int)size;
+ }
 
 /**
  * @brief Get data from M7
@@ -252,21 +284,7 @@ int get_from_m7(int *const restrict buffer, unsigned int size)
     return (int)size;
 }
 
-int get_any_from_m7(void *const restrict buffer, unsigned int size){ //similar to the original
-	if (atomic_flag_test_and_set(&shared_data.lock1)) {               // but memcpy works better imo
 
-		return -1;
-	}
-    if (size > shared_data.buffer1_size) {
-        size = shared_data.buffer1_size;
-    }
-    memcpy(buffer, shared_data.buffer1, size);
-
-    shared_data.buffer1_size = 0;
-    atomic_flag_clear(&shared_data.lock1);
-
-    return (int)size;
- }
 
 /**
  * @brief Verify whether CM7 has data ready for CM4 to read
